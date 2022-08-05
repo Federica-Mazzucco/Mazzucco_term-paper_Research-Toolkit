@@ -1,0 +1,124 @@
+---
+title: "'Behave': cleaning and analysis"
+author: "Federica Mazzucco"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(psych)
+library(ggplot2)
+library(rmarkdown)
+library(tidyverse)
+library(esquisse)
+library(data.table)
+library(forcats)
+```
+
+
+
+```{r, include=FALSE}
+behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/main/behave.csv?token=AAABK5GECDLMLVZY3T4QLELC6T4JI')
+```
+
+
+
+
+## Tidying up the "behave" data file
+
+### Select columns and check for missing data
+Select only relevant columns:
+```{r}
+behave <- select(behave, ID, Verb, Age, Adjective, Gender, Handedness, Item, Condition, Rating)
+```
+
+
+Check if there are missing data:
+```{r}
+colSums(is.na(behave))
+```
+There are no missing data.
+
+
+
+
+### Check for off-scale values
+
+Select unique values:
+
+```{r}
+unique(select(behave, Verb), incomparables = FALSE)
+```
+
+The verb *sein*, "to be", is spelt wrong in the first line. Let's fix it:
+
+```{r}
+sein <- c("seein", "sein")
+```
+
+```{r}
+behave <- behave %>% mutate(Verb = fct_collapse(Verb, sein = sein))
+```
+
+
+Let's check the age of the participants:
+```{r}
+unique(select(behave, Age), incomparables = FALSE)
+```
+
+A participant cannot be aged 230, so we need to remove them from the database: 
+```{r}
+behave <- filter(behave, Age <= 30)
+```
+
+
+To have more information on the participants, we can also check their gender:
+```{r}
+count(behave, Gender)
+```
+
+
+
+
+
+
+
+A 1-7 Likert scale was used. Some ratings are clearly off:
+```{r}
+unique(select(behave, Rating), incomparables = FALSE)
+```
+
+
+
+```{r}
+count(behave, Rating)
+```
+
+
+I need to get rid of those off-scale ratings
+
+```{r}
+behave <- filter(behave, Rating != 0, Rating != 10, Rating != 11)
+```
+
+
+
+
+
+
+### Clean the dataset from irrelevant Conditions and Items
+The "stimuli" file only contains 30 stimuli divided into Conditions 1, 2, 3, 4. Condition 100 contains 100 further stimuli. It is irrelevant, meant only to distract the participants from the real purpose of the experiment.
+We can get rid of it.
+
+```{r}
+behave <- filter(behave, Condition <= 4)
+```
+
+
+
+
+
