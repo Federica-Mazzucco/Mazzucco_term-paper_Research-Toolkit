@@ -22,7 +22,7 @@ library(forcats)
 
 
 ```{r, include=FALSE}
-behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/main/behave.csv?token=AAABK5GECDLMLVZY3T4QLELC6T4JI')
+behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/main/behave.csv?token=AAABK5HTCT3KTIRCMINMPNDDAJTZO')
 ```
 
 
@@ -120,5 +120,56 @@ behave <- filter(behave, Condition <= 4)
 
 
 
+## Analysing the dataset
+
+### Summary statistics
+
+produce summary statistics (mean, standard variation, minimum, maximum). The descriptive statistics should relate to the experiment design, i.e. the verb and adjective types. Make at least one plot that is appropriate for your data.
+
+We can create a summary to better visualize our data:
+```{r}
+behave_summary <- behave %>%
+ group_by(Condition, Rating) %>%
+ summarise(Count = n()) %>%
+ mutate(Frequency = 100*Count / sum(Count))
+```
+```{r}
+print(behave_summary)
+```
 
 
+
+mean rating for each condition:
+```{r}
+mean(filter(behave, Condition == 1)$Rating)
+mean(filter(behave, Condition == 2)$Rating)
+mean(filter(behave, Condition == 3)$Rating)
+mean(filter(behave, Condition == 4)$Rating)
+```
+
+
+
+Standard variation
+```{r}
+sd(filter(behave, Condition == 1)$Rating)
+sd(filter(behave, Condition == 2)$Rating)
+sd(filter(behave, Condition == 3)$Rating)
+sd(filter(behave, Condition == 4)$Rating)
+```
+
+
+Minimum
+```{r}
+min(filter(behave, Condition == 1)$Rating)
+min(filter(behave, Condition == 2)$Rating)
+min(filter(behave, Condition == 3)$Rating)
+min(filter(behave, Condition == 4)$Rating)
+```
+
+Maximum
+```{r}
+max(filter(behave, Condition == 1)$Rating)
+max(filter(behave, Condition == 2)$Rating)
+max(filter(behave, Condition == 3)$Rating)
+max(filter(behave, Condition == 4)$Rating)
+```
