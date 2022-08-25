@@ -1,5 +1,5 @@
 ---
-title: "'Behave': cleaning and analysis"
+title: "Data-cleaning and analysis"
 author: "Federica Mazzucco"
 date: "`r Sys.Date()`"
 output: html_document
@@ -92,14 +92,7 @@ A 1-7 Likert scale was used. Some ratings are clearly off:
 unique(select(behave, Rating), incomparables = FALSE)
 ```
 
-
-
-```{r}
-count(behave, Rating)
-```
-
-
-I need to get rid of those off-scale ratings
+Let's get rid of the off-scale ratings:
 
 ```{r}
 behave <- filter(behave, Rating != 0, Rating != 10, Rating != 11)
@@ -189,16 +182,33 @@ print(behave_statistics)
 ```
 
 
-Easier visualization trough a plot:
+### Plotting the results
 
+```{r}
+behave_summary$Rating <- as.character(behave_summary$Rating)
+
+ggplot(behave_summary) +
+  aes(x = Rating, y = Count, fill = Rating) +
+  geom_col() +
+  scale_fill_brewer() +
+  labs(title = "Rating count for each Condition") +
+  theme_light() +
+  facet_wrap(vars(Condition))
+```
 
 ```{r}
 ggplot(behave_statistics,aes(x=Condition))+
   geom_boxplot(aes(lower=Mean_rating- Standard_variation, upper= Mean_rating + Standard_variation, middle= Mean_rating, ymin= Minimum,ymax= Maximum),stat="identity")+
-  labs(x = "Conditions", y= "Mean ratings", title = "Overview of results", subtitle = "Mean rating and standard deviation for each condition")
+  labs(x = "Condition", y= "Mean rating", title = "Mean Ratings and Standard Deviation")
 ```
 
-### R Session
+
+
+
+
+
+
+## R Session
 
 R version 4.1.3 (2022-03-10)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
