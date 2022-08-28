@@ -20,11 +20,103 @@ library(forcats)
 ```
 
 
-
 ```{r, include=FALSE}
 behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/main/behave.csv?token=AAABK5CQSO65UMAUJS67NFTDB5R5S')
 ```
 
+```{r, include=FALSE}
+stimuli <- read_delim("C:/Users/mazzu/Desktop/git working dir/Mazzucco_term-paper_Research-Toolkit/stimuli.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+```
+
+
+
+## Understanding the nature of the stimuli
+
++ How many Conditions are there?\
+ 
+```{r}
+unique(select(stimuli, Condition))
+```
+5 Conditions: 1, 2, 3, 4 and 100.  
+<br>
+<br>
+
++ How many sentences per Condition?
+
+```{r}
+stimuli %>%
+  group_by(Condition)%>%
+  summarise(Count = n())
+```
+Conditions 1 to 4: 30 sentences.  
+Condition 100: 100 sentences.  
+
+```{r}
+stimuli %>%
+  group_by(AdjectiveUsed)%>%
+  summarise(Count = n())
+```
+The stimuli contain 60 adjectives in total, each of them paired with the verb "sein" or with the verb "sich verhalten".  
+<br>
+<br>
+
++ How are stage-level and individual-level adjectives distributed?
+
+```{r}
+stimuli %>%
+  filter(Adjective == "stage-level")%>%
+  group_by(Condition)%>%
+  summarise(Count = n())
+```
+
+```{r}
+stimuli %>%
+  filter(Adjective == "Individual-level")%>%
+  group_by(Condition)%>%
+  summarise(Count = n())
+```
+Stage-level adjectives are 60 in total, split equally between Condition 1 and 3.\
+Individual-level adjectives are 60, again split equally between condition 2 and 4.  
+<br>
+<br>
+
++ How many lists? How do they look like?
+```{r}
+behave %>%
+  group_by(List) %>%
+  summarise()
+```
+
+
+
+```{r}
+behave %>% 
+  filter(List == 1)%>%
+  count(ID)
+```
+
+
+```{r}
+behave %>% 
+  filter(List == 1, ID == 1)%>%
+  count(Condition)
+```
+
+
+```{r}
+behave %>% 
+  filter(List == 4, ID == 36)%>%
+  count(Condition)
+```
+
+Each List is given to 10 people, and contains either 7 or 8 sentences for each condition.  
+
+List 1:  8-7-7-8\
+List 2:  8-8-7-7\
+List 3:  7-8-8-7\
+List 4:  7-7-8-8  
+<br>
+<br>
 
 
 
@@ -33,16 +125,17 @@ behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/
 ### Select columns and check for missing data
 Select only relevant columns:
 ```{r}
-behave <- select(behave, ID, Verb, Age, Adjective, Gender, Handedness, Item, Condition, Rating)
+behave <- select(behave, ID, Verb, Age, Adjective, Gender, Item, Condition, Rating, List)
 ```
 
-
+<br>
 Check if there are missing data:
 ```{r}
 colSums(is.na(behave))
 ```
 There are no missing data.
-
+<br>
+<br>
 
 
 
@@ -64,27 +157,49 @@ sein <- c("seein", "sein")
 behave <- behave %>% mutate(Verb = fct_collapse(Verb, sein = sein))
 ```
 
-
+<br>
 Let's check the age of the participants:
 ```{r}
 unique(select(behave, Age), incomparables = FALSE)
 ```
-
+<br>
 A participant cannot be aged 230, so we need to remove them from the database: 
 ```{r}
 behave <- filter(behave, Age <= 30)
 ```
-
+<br>
 
 To have more information on the participants, we can also check their gender:
+
+
 ```{r}
-count(behave, Gender)
+behave$ID <- as.character(behave$ID)
+
+behave %>%
+ group_by(ID, Gender) %>%
+  summarise(Count = n())%>%
+  filter(Gender == "female")
 ```
 
 
+```{r}
+behave$ID <- as.character(behave$ID)
 
+behave %>%
+ group_by(ID, Gender) %>%
+  summarise(Count = n())%>%
+  filter(Gender == "male")
+```
 
+```{r}
+behave$ID <- as.character(behave$ID)
 
+behave %>%
+ group_by(ID, Gender) %>%
+  summarise(Count = n())%>%
+  filter(Gender == "other")
+```
+<br>
 
 
 A 1-7 Likert scale was used. Some ratings are clearly off:
@@ -97,13 +212,15 @@ Let's get rid of the off-scale ratings:
 ```{r}
 behave <- filter(behave, Rating != 0, Rating != 10, Rating != 11)
 ```
-
+<br>
+<br>
 
 
 
 
 
 ### Clean the dataset from irrelevant Conditions and Items
+
 The "stimuli" file only contains 30 stimuli divided into Conditions 1, 2, 3, 4. Condition 100 contains 100 further stimuli. It is irrelevant, meant only to distract the participants from the real purpose of the experiment.
 We can get rid of it.
 
@@ -111,13 +228,14 @@ We can get rid of it.
 behave <- filter(behave, Condition <= 4)
 ```
 
+<br>
+<br>
+
 
 
 ## Analysing the dataset
 
 ### Summary statistics
-
-produce summary statistics (mean, standard variation, minimum, maximum). The descriptive statistics should relate to the experiment design, i.e. the verb and adjective types. Make at least one plot that is appropriate for your data.
 
 We can create a summary to better visualize our data:
 ```{r}
@@ -130,42 +248,49 @@ behave_summary <- behave %>%
 print(behave_summary)
 ```
 
+<br>
 
+It is possible to execute some basic calculations:  
 
-mean rating for each condition:
++ Mean rating for each condition:
 ```{r}
 mean(filter(behave, Condition == 1)$Rating)
 mean(filter(behave, Condition == 2)$Rating)
 mean(filter(behave, Condition == 3)$Rating)
 mean(filter(behave, Condition == 4)$Rating)
 ```
+<br>
 
 
 
-Standard variation
++ Standard variation
 ```{r}
 sd(filter(behave, Condition == 1)$Rating)
 sd(filter(behave, Condition == 2)$Rating)
 sd(filter(behave, Condition == 3)$Rating)
 sd(filter(behave, Condition == 4)$Rating)
 ```
+<br>
 
 
-Minimum
++ Minimum Rating
 ```{r}
 min(filter(behave, Condition == 1)$Rating)
 min(filter(behave, Condition == 2)$Rating)
 min(filter(behave, Condition == 3)$Rating)
 min(filter(behave, Condition == 4)$Rating)
 ```
+<br>
 
-Maximum
+
++ Maximum Rating
 ```{r}
 max(filter(behave, Condition == 1)$Rating)
 max(filter(behave, Condition == 2)$Rating)
 max(filter(behave, Condition == 3)$Rating)
 max(filter(behave, Condition == 4)$Rating)
 ```
+<br>
 
 It is now possible to create a single data frame which contains all the summary statistics:
 
@@ -180,7 +305,8 @@ behave_statistics <- data.frame(Condition, Mean_rating, Standard_variation, Mini
 
 print(behave_statistics)
 ```
-
+<br>
+<br>
 
 ### Plotting the results
 
@@ -195,15 +321,16 @@ ggplot(behave_summary) +
   theme_light() +
   facet_wrap(vars(Condition))
 ```
+<br>
 
 ```{r}
 ggplot(behave_statistics,aes(x=Condition))+
   geom_boxplot(aes(lower=Mean_rating- Standard_variation, upper= Mean_rating + Standard_variation, middle= Mean_rating, ymin= Minimum,ymax= Maximum),stat="identity")+
   labs(x = "Condition", y= "Mean rating", title = "Mean Ratings and Standard Deviation")
 ```
-
-
-
+<br>
+<br>
+<br>
 
 
 
