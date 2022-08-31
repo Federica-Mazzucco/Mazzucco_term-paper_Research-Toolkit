@@ -306,7 +306,32 @@ behave_statistics <- data.frame(Condition, Mean_rating, Standard_variation, Mini
 print(behave_statistics)
 ```
 <br>
+
+```{r}
+behave%>%
+  filter(Condition == 4)%>%
+  count(Rating)
+```
+
+```{r}
+behave%>%
+  filter(Condition == 4)%>%
+  count(Rating)%>%
+  sum()
+```
+
+
+
+```{r}
+17+86+102
+```
+
+
+
+
 <br>
+<br>
+
 
 ### Plotting the results
 
