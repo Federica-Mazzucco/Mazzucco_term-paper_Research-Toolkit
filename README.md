@@ -15,3 +15,4 @@ The repository contains:
 - Declaration against plagiarism (pdf file)
 
 
+# Mazzucco-HumanitiesToolkit
