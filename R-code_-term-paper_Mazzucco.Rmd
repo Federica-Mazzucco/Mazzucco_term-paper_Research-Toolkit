@@ -20,17 +20,25 @@ library(forcats)
 ```
 
 
-```{r, include=FALSE}
-behave <- fread('https://raw.github.tik.uni-stuttgart.de/ac140358/ERT4HSoSe2022/main/behave.csv?token=AAABK5CQSO65UMAUJS67NFTDB5R5S')
-```
+
 
 ```{r, include=FALSE}
-stimuli <- read_delim("C:/Users/mazzu/Desktop/git working dir/Mazzucco_term-paper_Research-Toolkit/stimuli.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+behave_gist <- "https://gist.githubusercontent.com/Federica-Mazzucco/c9cea48f9b68958b8666f66c9d3bace4/raw/350ccab3999b1bf265ff67e7fe84b8717450cfb3/behave.CSV"
+
+behave <- read_csv(behave_gist)
 ```
+
+
+```{r, include=FALSE}
+stimuli <- read_delim("https://gist.githubusercontent.com/Federica-Mazzucco/c9cea48f9b68958b8666f66c9d3bace4/raw/20c11cada16f2d7da9a574c48201002a225df0b2/stimuli.CSV", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+```
+
 
 
 
 ## Understanding the nature of the stimuli
+
+
 
 + How many Conditions are there?\
  
